@@ -1,6 +1,7 @@
 package com.harness.api.rest
 
 import com.harness.domain.model.Greeting
+import kotlinx.serialization.Serializable
 
 /**
  * REST response DTO for greeting data.
@@ -28,6 +29,7 @@ data class GreetingResponse(
 /**
  * REST request DTO for creating a greeting.
  */
+@Serializable
 data class CreateGreetingRequest(
     val message: String,
     val language: String = "en",
