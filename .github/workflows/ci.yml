@@ -23,17 +23,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon
 
       - name: Run Static Analysis
-        run: ./gradlew detekt
+        run: ./gradlew detekt --no-daemon
 
       - name: Run Architecture Tests
-        run: ./gradlew test --tests "com.harness.archunit.*"
+        run: ./gradlew test --tests "com.harness.archunit.*" --no-daemon
 
   verify:
     name: Full Verification
@@ -52,8 +52,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Run Full Verification
         run: ./gradlew build detekt --no-daemon
