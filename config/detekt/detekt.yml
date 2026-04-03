@@ -86,7 +86,6 @@ complexity:
   # Use enums or sealed classes for type-safe comparisons.
   StringLiteralDuplication:
     active: true
-    excludeStringRegex: '$^'
     threshold: 3
     ignoreAnnotation: true
     excludeStringRegex: '^[A-Z_]+$'  # Allow constant-style strings
@@ -230,11 +229,6 @@ potential-bugs:
   UnsafeCast:
     active: true
 
-  # WHY: Calling "count()" on a collection to check emptiness iterates
-  # the entire collection. Use "isEmpty()" instead.
-  UnnecessaryPartOfBinaryExpression:
-    active: true
-
   # WHY: Assignment in conditional is a common source of bugs.
   # It makes the code harder to read and reason about.
   AssignmentInConditionalExpression:
@@ -274,7 +268,8 @@ style:
     active: true
     allowedNames: ''
 
-  # WHY: "it" parameter in lambdas is ambiguous. Name it explicitly.
+  # WHY: Numeric literals with underscores are easier to read.
+  # Prefer 1_000_000 over 1000000.
   UnderscoresInNumericLiterals:
     active: true
     acceptableLength: 4
@@ -307,18 +302,9 @@ style:
   OptionalReturnKeyword:
     active: true
 
-  # WHY: Non-null assertion (!!) bypasses null safety.
-  # It indicates a design problem with the type system usage.
-  UnnecessaryNotNullCheck:
-    active: true
-
   # WHY: Nullable collections are rarely needed and cause extra null checks.
   # Prefer empty collections over null.
   NullableBooleanCheck:
-    active: true
-
-  # WHY: Equals with null is unnecessary. Use == directly.
-  UnnecessaryNotNullCheck:
     active: true
 
   # WHY: TODO comments indicate incomplete work. They should be tracked
