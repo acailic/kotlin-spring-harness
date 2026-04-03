@@ -38,10 +38,10 @@ dependencies {
     testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
 
     // Ktor Client (for integration testing instead of MockMvc)
-    testImplementation("io.ktor:ktor-client-core:3.0.3")
-    testImplementation("io.ktor:ktor-client-cio:3.0.3")
-    testImplementation("io.ktor:ktor-client-content-negotiation:3.0.3")
-    testImplementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
+    testImplementation("io.ktor:ktor-client-core:3.4.2")
+    testImplementation("io.ktor:ktor-client-cio:3.4.2")
+    testImplementation("io.ktor:ktor-client-content-negotiation:3.4.2")
+    testImplementation("io.ktor:ktor-serialization-kotlinx-json:3.4.2")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
