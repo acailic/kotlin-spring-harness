@@ -39,60 +39,72 @@ class GreetingControllerIntegrationTest : BaseIntegrationTest() {
     )
 
     @BeforeEach
-    fun setup() = runBlocking {
-        greetingRepository.save(sampleGreeting)
-    }
-
-    @Test
-    fun `GET greetings returns list with sample data`() = runBlocking {
-        val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings")
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        val body = response.body<String>()
-        assertTrue(body.contains("test-123"))
-        assertTrue(body.contains("Hello, World!"))
-    }
-
-    @Test
-    fun `GET greeting by ID returns single greeting`() = runBlocking {
-        val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings/test-123")
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        val body = response.body<String>()
-        assertTrue(body.contains("Hello, World!"))
-        assertTrue(body.contains("en"))
-    }
-
-    @Test
-    fun `GET greeting by ID returns 500 for missing greeting`() = runBlocking {
-        val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings/nonexistent")
-
-        assertEquals(HttpStatusCode.InternalServerError, response.status)
-    }
-
-    @Test
-    fun `GET greetings filtered by language returns only matching`() = runBlocking {
-        greetingRepository.save(
-            Greeting(GreetingId("spanish-1"), "Hola!", Language.SPANISH)
-        )
-
-        val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings?language=es")
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        val body = response.body<String>()
-        assertTrue(body.contains("Hola!"))
-    }
-
-    @Test
-    fun `POST greeting creates new greeting`() = runBlocking {
-        val response: HttpResponse = ktorClient.post("${baseUrl()}/api/v1/greetings") {
-            contentType(ContentType.Application.Json)
-            setBody(CreateGreetingRequest(message = "Bonjour!", language = "fr"))
+    fun setup() {
+        runBlocking {
+            greetingRepository.save(sampleGreeting)
         }
+    }
 
-        assertEquals(HttpStatusCode.OK, response.status)
-        val body = response.body<String>()
-        assertTrue(body.contains("Bonjour!"))
-        assertTrue(body.contains("fr"))
+    @Test
+    fun `GET greetings returns list with sample data`() {
+        runBlocking {
+            val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.body<String>()
+            assertTrue(body.contains("test-123"))
+            assertTrue(body.contains("Hello, World!"))
+        }
+    }
+
+    @Test
+    fun `GET greeting by ID returns single greeting`() {
+        runBlocking {
+            val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings/test-123")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.body<String>()
+            assertTrue(body.contains("Hello, World!"))
+            assertTrue(body.contains("en"))
+        }
+    }
+
+    @Test
+    fun `GET greeting by ID returns 500 for missing greeting`() {
+        runBlocking {
+            val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings/nonexistent")
+
+            assertEquals(HttpStatusCode.InternalServerError, response.status)
+        }
+    }
+
+    @Test
+    fun `GET greetings filtered by language returns only matching`() {
+        runBlocking {
+            greetingRepository.save(
+                Greeting(GreetingId("spanish-1"), "Hola!", Language.SPANISH)
+            )
+
+            val response: HttpResponse = ktorClient.get("${baseUrl()}/api/v1/greetings?language=es")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.body<String>()
+            assertTrue(body.contains("Hola!"))
+        }
+    }
+
+    @Test
+    fun `POST greeting creates new greeting`() {
+        runBlocking {
+            val response: HttpResponse = ktorClient.post("${baseUrl()}/api/v1/greetings") {
+                contentType(ContentType.Application.Json)
+                setBody(CreateGreetingRequest(message = "Bonjour!", language = "fr"))
+            }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = response.body<String>()
+            assertTrue(body.contains("Bonjour!"))
+            assertTrue(body.contains("fr"))
+        }
     }
 }

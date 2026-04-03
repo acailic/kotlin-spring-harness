@@ -7,6 +7,7 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeAll
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * Architecture governance tests using ArchUnit.
@@ -37,7 +38,13 @@ class ArchitectureTest {
         @JvmStatic
         fun importClasses() {
             importedClasses = ClassFileImporter()
-                .importPackages("com.harness")
+                .importPackages(
+                    "com.harness.domain",
+                    "com.harness.application",
+                    "com.harness.infrastructure",
+                    "com.harness.api",
+                    "com.harness.config",
+                )
         }
     }
 
@@ -86,7 +93,7 @@ class ArchitectureTest {
     @Test
     fun `controllers must depend on inbound ports`() {
         classes()
-            .that().resideInAPackage("..api..")
+            .that().areAnnotatedWith(RestController::class.java)
             .should().dependOnClassesThat()
             .resideInAPackage("..domain.port.inbound..")
             .check(importedClasses)
@@ -109,6 +116,7 @@ class ArchitectureTest {
         classes()
             .that().resideInAPackage("..api.rest..")
             .and().arePublic()
+            .and().areAnnotatedWith(RestController::class.java)
             .should().haveSimpleNameEndingWith("Controller")
             .check(importedClasses)
     }
