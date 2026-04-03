@@ -18,7 +18,6 @@ java {
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
-        jvmTarget.set(org.gradle.api.JavaVersion.VERSION_21.toString())
     }
 }
 
