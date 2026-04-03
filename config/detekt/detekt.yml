@@ -1,0 +1,374 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Detekt Configuration — Kotlin Static Analysis
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# This file configures static analysis rules for the project.
+# Each rule includes an educational comment explaining WHY it's enabled.
+# Rules marked "active: true" will fail the build if violated.
+#
+# Philosophy: Catch problems early, not just style issues.
+# These rules prevent real bugs and maintain architectural integrity.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+  weights:
+    complexity: 2
+    LongParameterList: 1
+    style: 1
+    comments: 1
+
+config:
+  validation: true
+  warningsAsErrors: false
+  checkExhaustiveness: false
+
+processors:
+  active: true
+  exclude:
+    - 'DetektProgressListener'
+
+console-reports:
+  active: true
+  exclude:
+    - 'ProjectStatisticsReport'
+    - 'NotificationReport'
+
+output-reports:
+  active: true
+
+# ━━━ COMPLEXITY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+complexity:
+  active: true
+
+  # WHY: Long functions are hard to test and reason about.
+  # Complex methods should be decomposed into smaller, focused functions.
+  LongMethod:
+    active: true
+    threshold: 60
+
+  # WHY: Functions with many parameters are hard to call correctly
+  # and usually indicate a missing domain concept (a parameter object).
+  # Use data classes to group related parameters.
+  LongParameterList:
+    active: true
+    functionThreshold: 6
+    constructorThreshold: 7
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    ignoreAnnotatedParameter: []
+
+  # WHY: Deeply nested code is hard to follow.
+  # Guard clauses (early returns) flatten the structure.
+  NestedBlockDepth:
+    active: true
+    threshold: 4
+
+  # WHY: Complex conditionals indicate missing abstractions.
+  # Extract to a well-named function or use a when-expression.
+  ComplexCondition:
+    active: true
+    threshold: 4
+
+  # WHY: Large classes do too much. Apply Single Responsibility.
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 15
+    thresholdInClasses: 15
+    thresholdInInterfaces: 15
+    thresholdInObjects: 15
+    thresholdInEnums: 15
+    ignoreDeprecated: true
+    ignorePrivate: true
+
+  # WHY: String literals in conditions suggest missing constants or enums.
+  # Use enums or sealed classes for type-safe comparisons.
+  StringLiteralDuplication:
+    active: true
+    excludeStringRegex: '$^'
+    threshold: 3
+    ignoreAnnotation: true
+    excludeStringRegex: '^[A-Z_]+$'  # Allow constant-style strings
+
+  # WHY: Too many return statements make control flow hard to follow.
+  # Consider extracting to a when-expression or sealed class.
+  TooManyFunctions:
+    active: false  # Handled by LongMethod above
+
+  # WHY: High cognitive complexity means the function is doing too much.
+  # Break it into smaller, focused functions.
+  CognitiveComplexMethod:
+    active: true
+    threshold: 15
+
+# ━━━ COROUTINES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+coroutines:
+  active: true
+
+  # WHY: GlobalScope creates coroutines that outlive the lifecycle
+  # of the component that started them, causing memory leaks.
+  GlobalCoroutineUsage:
+    active: true
+
+  # WHY: Suspend functions called from a non-suspend context
+  # usually indicate a missing scope or misunderstanding of coroutines.
+  SuspendFunSwallowedCancellation:
+    active: true
+
+  # WHY: Injecting dispatchers makes code testable by allowing
+  # test dispatchers (like TestDispatcher) to be substituted.
+  InjectDispatcher:
+    active: true
+
+  # WHY: Fire-and-forget coroutines can cause subtle bugs when
+  # exceptions are lost. Use structured concurrency.
+  RedundantSuspendModifier:
+    active: true
+
+# ━━━ NAMING ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+naming:
+  active: true
+
+  # WHY: Non-descriptive names hide intent. Code should read like prose.
+  # "getUserById" is self-documenting; "proc" is not.
+  VariableNaming:
+    active: true
+    variablePattern: '[a-z][A-Za-z0-9]*'
+    privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
+    excludeClassPattern: '$^'
+
+  # WHY: Boolean properties with "is" prefix read naturally in conditions.
+  # "if (user.isActive)" reads better than "if (user.active)".
+  BooleanPropertyNaming:
+    active: true
+    allowedPattern: '^(is|has|are|should|can|will|was)'
+    ignoreWhenOverridden: true
+
+  # WHY: Package names should be lowercase (Kotlin/Java convention).
+  InvalidPackageDeclaration:
+    active: true
+    rootPackage: 'com.harness'
+    requireRootInDeclaration: false
+
+  # WHY: Enum entries should be UPPER_SNAKE_CASE (Kotlin convention).
+  EnumNaming:
+    active: true
+    enumEntryPattern: '[A-Z][_A-Z0-9]*'
+
+  # WHY: Top-level function names should clearly describe what they do.
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+    privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
+
+  # WHY: Matching member names with different types causes confusion.
+  # "val name: String" and "fun name(): Int" is ambiguous.
+  MatchingDeclarationName:
+    active: true
+    mustBeFirst: true
+
+# ━━━ PERFORMANCE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+performance:
+  active: true
+
+  # WHY: forEach on ranges is less efficient than for-loops.
+  # The compiler can optimize for-loops but not forEach with ranges.
+  ForEachOnRange:
+    active: true
+    excludes: ['**/test/**', '**/*.Test.kt', '**/*.Spec.kt']
+
+  # WHY: Spread operator (*) creates array copies.
+  # Avoid unless you truly need to pass varargs.
+  SpreadOperator:
+    active: true
+    excludes: ['**/test/**']
+
+  # WHY: Unnecessary partOf checks add overhead without benefit.
+  UnnecessaryPartOfBinaryExpression:
+    active: true
+
+  # WHY: Unnecessary temporary variables add memory pressure.
+  UnnecessaryTemporaryInstantiation:
+    active: true
+
+# ━━━ POTENTIAL BUGS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+potential-bugs:
+  active: true
+
+  # WHY: "When" branches with the same condition indicate a copy-paste
+  # error or missing case handling.
+  DuplicateCaseInWhenExpression:
+    active: true
+
+  # WHY: Missing "else" branch means unhandled cases silently do nothing.
+  # At minimum, throw an IllegalStateException for unhandled cases.
+  ElseCaseInsteadOfExhaustiveWhen:
+    active: false  # We allow exhaustive when without else
+
+  # WHY: Equals comparisons with floating point can fail due to
+  # precision issues. Use thresholds or BigDecimal.
+  FloatingPointEquality:
+    active: true
+
+  # WHY: Implicit "it" parameter is ambiguous when lambdas are nested.
+  # Always name the parameter explicitly for clarity.
+  UnnecessaryNotNullCheck:
+    active: true
+
+  # WHY: Unnecessary safe calls add visual noise.
+  UnnecessaryNotNullOperator:
+    active: true
+
+  # WHY: Unnecessary safe calls indicate the developer is unsure
+  # about nullability. Trust the type system.
+  UnnecessarySafeCall:
+    active: true
+
+  # WHY: Lateinit variables that are never initialized cause crashes.
+  # Use constructors for mandatory dependencies.
+  LateinitUsage:
+    active: false  # Spring DI commonly uses lateinit
+
+  # WHY: Casts can fail at runtime. Prefer generic types or smart casts.
+  UnsafeCast:
+    active: true
+
+  # WHY: Calling "count()" on a collection to check emptiness iterates
+  # the entire collection. Use "isEmpty()" instead.
+  UnnecessaryPartOfBinaryExpression:
+    active: true
+
+  # WHY: Assignment in conditional is a common source of bugs.
+  # It makes the code harder to read and reason about.
+  AssignmentInConditionalExpression:
+    active: true
+
+# ━━━ STYLE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+style:
+  active: true
+
+  # WHY: Magic numbers obscure intent. Use named constants.
+  MagicNumber:
+    active: true
+    excludes: ['**/test/**', '**/*.Test.kt', '**/*.Spec.kt']
+    ignoreNumbers: ['-1', '0', '1', '2']
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: true
+    ignoreLocalVariableDeclaration: false
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+    ignoreRanges: false
+    ignoreExtensionFunctions: true
+
+  # WHY: Semicolons are optional in Kotlin and add visual noise.
+  # Removing them is the idiomatic Kotlin style.
+  SemicolonSpacing:
+    active: true
+
+  # WHY: Unused imports and private members are dead code.
+  # They confuse readers and may hide bugs.
+  UnusedImports:
+    active: true
+
+  UnusedPrivateMember:
+    active: true
+    allowedNames: ''
+
+  # WHY: "it" parameter in lambdas is ambiguous. Name it explicitly.
+  UnderscoresInNumericLiterals:
+    active: true
+    acceptableLength: 4
+    allowNonStandardGrouping: false
+
+  # WHY: Wildcard imports can cause naming conflicts and make it
+  # unclear which classes are actually used.
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'  # Standard utility imports are acceptable
+
+  # WHY: Max line length keeps code readable without horizontal scrolling.
+  # 120 characters is the project standard.
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: false
+    excludeRawStrings: true
+
+  # WHY: Optional units (parentheses around single expressions) add
+  # visual noise without benefit.
+  OptionalUnit:
+    active: false
+
+  # WHY: Return-only lambdas should use expression syntax.
+  # { x -> return x + 1 } becomes { x -> x + 1 }
+  OptionalReturnKeyword:
+    active: true
+
+  # WHY: Non-null assertion (!!) bypasses null safety.
+  # It indicates a design problem with the type system usage.
+  UnnecessaryNotNullCheck:
+    active: true
+
+  # WHY: Nullable collections are rarely needed and cause extra null checks.
+  # Prefer empty collections over null.
+  NullableBooleanCheck:
+    active: true
+
+  # WHY: Equals with null is unnecessary. Use == directly.
+  UnnecessaryNotNullCheck:
+    active: true
+
+  # WHY: TODO comments indicate incomplete work. They should be tracked
+  # as issues, not hidden in code.
+  TodoComment:
+    active: false  # TODOs are acceptable during development
+
+# ━━━ COMMENTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+comments:
+  active: true
+
+  # WHY: Undocumented public API is a maintenance burden.
+  # Public functions and classes should have KDoc explaining intent.
+  KDocMethods:
+    active: false  # Enforced by ArchUnit instead
+
+  # WHY: Undocumented public classes make the API harder to discover.
+  KDocPublicClasses:
+    active: false  # Enforced by ArchUnit instead
+
+  # WHY: Comments that explain WHAT the code does are redundant
+  # when the code is well-written. Comments should explain WHY.
+  CommentOverPrivateMethod:
+    active: true
+
+  # WHY: Commented-out code is dead code. Delete it. Git remembers.
+  CommentedOutCode:
+    active: true
+
+  # WHY: End-of-line comments after code are hard to maintain
+  # and often become stale. Prefer KDoc above the declaration.
+  KDocOnNonPublicMethod:
+    active: false
+
+  # WHY: Absent KDoc on public classes reduces discoverability.
+  AbsentOrWrongFileLicense:
+    active: false  # Not enforcing license headers
+
+  # WHY: Overly long KDoc blocks indicate the code is too complex.
+  # If you need paragraphs to explain a function, refactor it.
+  OutdatedDocumentation:
+    active: true
+    matchTypeParameters: true
+    matchDeclarationsOrder: true
+
+  # WHY: Block comments with // style look inconsistent.
+  EndOfSentenceFormat:
+    active: false
