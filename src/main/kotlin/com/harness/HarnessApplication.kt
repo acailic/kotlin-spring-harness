@@ -13,5 +13,5 @@ import org.springframework.boot.runApplication
 class HarnessApplication
 
 fun main(args: Array<String>) {
-    runApplication<HarnessApplication>(*args)
+    @Suppress("SpreadOperator") runApplication<HarnessApplication>(*args)
 }
