@@ -91,11 +91,6 @@ complexity:
     ignoreAnnotation: true
     excludeStringRegex: '^[A-Z_]+$'  # Allow constant-style strings
 
-  # WHY: Too many return statements make control flow hard to follow.
-  # Consider extracting to a when-expression or sealed class.
-  TooManyFunctions:
-    active: false  # Handled by LongMethod above
-
   # WHY: High cognitive complexity means the function is doing too much.
   # Break it into smaller, focused functions.
   CognitiveComplexMethod:
