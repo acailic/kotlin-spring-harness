@@ -190,11 +190,6 @@ performance:
 potential-bugs:
   active: true
 
-  # WHY: "When" branches with the same condition indicate a copy-paste
-  # error or missing case handling.
-  DuplicateCaseInWhenExpression:
-    active: true
-
   # WHY: Missing "else" branch means unhandled cases silently do nothing.
   # At minimum, throw an IllegalStateException for unhandled cases.
   ElseCaseInsteadOfExhaustiveWhen:
@@ -301,17 +296,8 @@ comments:
 
   # WHY: Comments that explain WHAT the code does are redundant
   # when the code is well-written. Comments should explain WHY.
-  DocumentationOverPrivateFunction:
+  CommentOverPrivateFunction:
     active: true
-
-  # WHY: Commented-out code is dead code. Delete it. Git remembers.
-  CommentedOutCode:
-    active: true
-
-  # WHY: End-of-line comments after code are hard to maintain
-  # and often become stale. Prefer KDoc above the declaration.
-  KDocOnNonPublicMethod:
-    active: false
 
   # WHY: Absent KDoc on public classes reduces discoverability.
   AbsentOrWrongFileLicense:
