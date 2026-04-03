@@ -88,7 +88,7 @@ complexity:
     active: true
     threshold: 3
     ignoreAnnotation: true
-    excludeStringRegex: '^[A-Z_]+$'  # Allow constant-style strings
+    ignoreStringsRegex: '^[A-Z_]+$'  # Allow constant-style strings
 
   # WHY: High cognitive complexity means the function is doing too much.
   # Break it into smaller, focused functions.
@@ -137,7 +137,6 @@ naming:
   BooleanPropertyNaming:
     active: true
     allowedPattern: '^(is|has|are|should|can|will|was)'
-    ignoreWhenOverridden: true
 
   # WHY: Package names should be lowercase (Kotlin/Java convention).
   InvalidPackageDeclaration:
@@ -201,11 +200,6 @@ potential-bugs:
   ElseCaseInsteadOfExhaustiveWhen:
     active: false  # We allow exhaustive when without else
 
-  # WHY: Equals comparisons with floating point can fail due to
-  # precision issues. Use thresholds or BigDecimal.
-  FloatingPointEquality:
-    active: true
-
   # WHY: Implicit "it" parameter is ambiguous when lambdas are nested.
   # Always name the parameter explicitly for clarity.
   UnnecessaryNotNullCheck:
@@ -229,11 +223,6 @@ potential-bugs:
   UnsafeCast:
     active: true
 
-  # WHY: Assignment in conditional is a common source of bugs.
-  # It makes the code harder to read and reason about.
-  AssignmentInConditionalExpression:
-    active: true
-
 # ━━━ STYLE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 style:
   active: true
@@ -253,11 +242,6 @@ style:
     ignoreEnums: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
-
-  # WHY: Semicolons are optional in Kotlin and add visual noise.
-  # Removing them is the idiomatic Kotlin style.
-  SemicolonSpacing:
-    active: true
 
   # WHY: Unused imports and private members are dead code.
   # They confuse readers and may hide bugs.
@@ -297,20 +281,10 @@ style:
   OptionalUnit:
     active: false
 
-  # WHY: Return-only lambdas should use expression syntax.
-  # { x -> return x + 1 } becomes { x -> x + 1 }
-  OptionalReturnKeyword:
-    active: true
-
   # WHY: Nullable collections are rarely needed and cause extra null checks.
   # Prefer empty collections over null.
   NullableBooleanCheck:
     active: true
-
-  # WHY: TODO comments indicate incomplete work. They should be tracked
-  # as issues, not hidden in code.
-  TodoComment:
-    active: false  # TODOs are acceptable during development
 
 # ━━━ COMMENTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 comments:
@@ -318,16 +292,16 @@ comments:
 
   # WHY: Undocumented public API is a maintenance burden.
   # Public functions and classes should have KDoc explaining intent.
-  KDocMethods:
+  UndocumentedPublicFunction:
     active: false  # Enforced by ArchUnit instead
 
   # WHY: Undocumented public classes make the API harder to discover.
-  KDocPublicClasses:
+  UndocumentedPublicClass:
     active: false  # Enforced by ArchUnit instead
 
   # WHY: Comments that explain WHAT the code does are redundant
   # when the code is well-written. Comments should explain WHY.
-  CommentOverPrivateMethod:
+  DocumentationOverPrivateFunction:
     active: true
 
   # WHY: Commented-out code is dead code. Delete it. Git remembers.
