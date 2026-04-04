@@ -56,7 +56,13 @@ sdk install gradle 8.12
 gradle wrapper
 ```
 
-### 3. Build and Test
+### 3. Install Git Hooks (Optional)
+
+```bash
+./.git-hooks/setup.sh   # Install pre-commit hook for detekt + ArchUnit
+```
+
+### 4. Build and Test
 
 ```bash
 ./gradlew build        # Compile + test
@@ -64,7 +70,7 @@ gradle wrapper
 ./gradlew test         # Run all tests (including architecture tests)
 ```
 
-### 4. Start Developing
+### 5. Start Developing
 
 The template includes a working example (Greeting API) that demonstrates all architectural layers. Replace it with your own domain logic following the patterns established in `AGENTS.md`.
 
@@ -130,6 +136,37 @@ Uses Ktor's lightweight HTTP client instead of Spring's MockMvc:
 - Tests real HTTP protocol (headers, status codes, serialization)
 - Idiomatic Kotlin with coroutine support
 - Framework-agnostic client — tests what the user actually sends
+
+## Customizing for Your Project
+
+### Package Rename
+
+To adapt this template to your organization, rename `com.harness` to your own package:
+
+**Using IntelliJ IDEA:**
+1. Right-click the `com.harness` package → Refactor → Rename
+2. Enter your new package name
+3. Update `src/main/resources/application.properties` if the package reference changes
+
+**Using find-and-replace (quick setup):**
+```bash
+# Replace across all source files
+find . -name "*.kt" -type f -exec sed -i 's/com\.harness/com.yourcompany/g' {} +
+```
+
+### Inspiration
+
+This harness is inspired by Martin Fowler's article **"Harness Engineering for Coding Agent Users"** (April 2026). The concept of providing AI assistants with rich architectural context through `AGENTS.md` enables coding agents to generate convention-compliant code from day one.
+
+### Adding a Real Database
+
+The template includes `InMemoryGreetingRepository` for immediate development and testing. To switch to PostgreSQL or another database:
+
+1. Implement the `GreetingRepository` interface in `infrastructure/persistence/`
+2. Add Spring Data JPA or Exposed dependencies to `build.gradle.kts`
+3. Configure the datasource in `application.properties`
+
+The hexagonal architecture ensures your application layer remains unchanged — only the infrastructure adapter differs.
 
 ## Project Structure
 

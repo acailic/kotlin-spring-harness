@@ -1,0 +1,19 @@
+# Pre-commit configuration for kotlin-spring-harness
+# This configures the pre-commit framework (if used)
+# The actual git hook is in .git-hooks/pre-commit
+
+repos:
+  - repo: local
+    hooks:
+      - id: detekt
+        name: Detekt (Kotlin static analysis)
+        entry: ./gradlew detekt
+        language: system
+        pass_filenames: false
+        types: [kotlin]
+
+      - id: archunit
+        name: ArchUnit (Architecture tests)
+        entry: ./gradlew test --tests "*ArchitectureTest"
+        language: system
+        pass_filenames: false

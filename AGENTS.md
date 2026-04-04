@@ -166,6 +166,161 @@ com.harness/
 
 ---
 
+## Common Mistakes to Avoid
+
+AI agents often generate these patterns that violate project conventions. Watch for and correct them:
+
+### Variable Declaration
+- **Generating `var` instead of `val`** — Use immutable variables by default. The `VarCouldBeVal` detekt rule catches this.
+- **Using mutable collections** — Prefer `listOf()`, `setOf()`, `mapOf()` over mutable variants.
+
+### Utility Functions
+- **Creating utility classes with static methods** — Use extension functions or top-level functions instead.
+  ```kotlin
+  // Bad
+  object StringUtils {
+      fun String.isEmptyOrNull() = this.isNullOrBlank()
+  }
+  // Good
+  fun String.isEmptyOrNull() = this.isNullOrBlank()
+  ```
+
+### Property Access
+- **Using Java-style getters/setters** — Use Kotlin properties directly. For DTOs, use data classes.
+  ```kotlin
+  // Bad
+  person.getName()
+  person.setName(name)
+  // Good
+  person.name
+  ```
+
+### Null Safety
+- **Ignoring null safety** — Never use `!!` (non-null assertion). Prefer safe calls `?.` and elvis `?:`.
+  ```kotlin
+  // Bad
+  val length = string!!.length
+  // Good
+  val length = string?.length ?: 0
+  ```
+
+### Testing Anti-Patterns
+- **Writing tests that only verify mock behavior** — Test real logic, not mock interactions. Use `verify()` sparingly.
+- **Skipping ArchUnit tests** — Never disable architecture tests when "just adding a quick feature."
+
+### Dependencies
+- **Adding unnecessary dependencies** — Check if Kotlin stdlib already provides it before adding a library.
+
+---
+
+## Testing Patterns
+
+### Test Structure: Given-When-Then
+
+Use the Given-When-Then pattern for clear, readable test bodies:
+
+```kotlin
+@Test
+fun `should return greeting when valid id provided`() {
+    // Given
+    val id = "test-id"
+    val expected = Greeting(id, "Hello, test-id!")
+
+    // When
+    val result = greetingService.getGreeting(id)
+
+    // Then
+    assertEquals(expected, result)
+}
+```
+
+### Test Naming
+
+- Use **backtick style** for test names describing expected behavior
+- Format: `should {expected outcome} when {condition}`
+- Examples:
+  - `should return greeting when valid id provided`
+  - `should throw exception when id is empty`
+  - `should return empty list when no greetings exist`
+
+### Integration Tests
+
+- Use **Ktor HttpClient** (not MockMvc) — see `BaseIntegrationTest`
+- Test full HTTP requests/responses
+- Verify status codes, headers, and body
+- Test against real endpoints (in-memory database)
+
+### Architecture Tests
+
+- Located in `src/test/kotlin/.../archunit/`
+- Enforce hexagonal boundary rules
+- Run on every build — never skip
+- See `ArchitectureTest` for examples
+
+### Coverage Requirements
+
+- Every public service method must have at least one test
+- Domain layer tests must have ZERO Spring dependencies
+- Test boundary conditions, not just happy paths
+
+---
+
+## Error Handling
+
+### Simple Cases: Domain Exceptions
+
+For straightforward error scenarios, throw domain-specific exceptions:
+
+```kotlin
+fun getGreeting(id: String): Greeting {
+    if (id.isBlank()) {
+        throw IllegalArgumentException("ID cannot be blank")
+    }
+    return repository.findById(id)
+        ?: throw NoSuchElementException("Greeting not found: $id")
+}
+```
+
+### Complex Scenarios: Result or Either
+
+For more complex error handling with multiple failure modes:
+
+**Option 1: Kotlin's `Result<T>`**
+```kotlin
+fun getGreeting(id: String): Result<Greeting> {
+    return when {
+        id.isBlank() -> Result.failure(IllegalArgumentException("ID cannot be blank"))
+        else -> repository.findById(id)?.let { Result.success(it) }
+            ?: Result.failure(NoSuchElementException("Greeting not found: $id"))
+    }
+}
+```
+
+**Option 2: Sealed class `Either<L, R>`**
+```kotlin
+sealed interface ApiResult<out T> {
+    data class Success<T>(val value: T) : ApiResult<T>
+    data class Error(val message: String, val cause: Throwable? = null) : ApiResult<Nothing>
+}
+
+fun getGreeting(id: String): ApiResult<Greeting> {
+    return when {
+        id.isBlank() -> ApiResult.Error("ID cannot be blank")
+        else -> repository.findById(id)?.let { ApiResult.Success(it) }
+            ?: ApiResult.Error("Greeting not found: $id")
+    }
+}
+```
+
+### Error Handling Rules
+
+- **Never swallow exceptions silently** — No empty catch blocks
+- **Domain exceptions carry meaningful messages** — Explain what went wrong
+- **Log at appropriate boundaries** — Use SLF4J, not `println()`
+- **Prefer specific exceptions** — Catch `IllegalArgumentException`, not `Exception`
+
+---
+
 ## Build Commands
 
 ```bash
