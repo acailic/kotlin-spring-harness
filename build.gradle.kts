@@ -39,8 +39,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json")
 
     // Architecture Tests
-    testImplementation("com.tngtech.archunit:archunit:1.4.1")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
+    testImplementation("com.tngtech.archunit:archunit:1.4.2")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
 
     // Ktor Client (for integration testing instead of MockMvc)
     testImplementation("io.ktor:ktor-client-core:3.0.3")
